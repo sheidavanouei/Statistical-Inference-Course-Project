@@ -1,0 +1,115 @@
+---
+title: "Statistical Inference Course Project Part 2"
+author: "Sheida Vanouei"
+date: "July 24, 2018"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+In this paper, a sample dataset about Tooth Growth is being investigated with exploratory data analysis. The ToolthGrowth dataset contains observation for the effect of vitamin C on tooth growth in Guinea Pigs, which corresponds to the response is the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid).   
+
+###Tooth Growth Dataset
+####Summary
+
+```{r }
+data("ToothGrowth")   
+
+
+summary(ToothGrowth)
+```
+
+From the summary, we know that 30 observations are related to orange juice (supp = "OJ"), and other 30 are with ascorbic acid (supp = "VC"). Since the dose levels are fixed at 0.5, or 1, or 2 mg level, the median and mean or even quantile values do not carry much meaning in our analysis, we should focus on the length observation in the dataset, which the summary shows the values are between 4.20 and 33.90 with mean value at 28.81 and median at 19.25.   
+
+####Structure  
+
+
+```{r }
+str(ToothGrowth)
+```
+
+####Head
+```{r}
+head(ToothGrowth)
+
+```
+####Unique   
+```{r}
+unique(ToothGrowth$len)
+
+```
+
+```{r}
+unique(ToothGrowth$supp)
+
+```
+
+```{r}
+unique(ToothGrowth$dose)
+```
+####Boxplot 
+
+```{r}
+library(ggplot2)
+p <- ggplot(ToothGrowth, aes(x=dose, y=len)) 
+p <- p + geom_boxplot(aes(fill=factor(dose)))
+p <- p + geom_point()
+p <- p + facet_grid(.~supp)
+p <- p + ggtitle("Tooth Growth by Supplement & Dosage")
+p
+```
+
+
+
+    Based on the above chart, it appears that when the dosage is high at 2 mg, the mean value of tooth growth appears to be similar between OJ and VC, however, when the dosage is 0.5 mg or 1 mg, the chart definitely shows that OJ has a obvious positive impact on tooth growth compared to VC.   
+
+##Hypothesis Testing 
+
+Application methods have no impact on tooth growth.   
+
+H0: Both group have the same mean.
+HA: Means are different.
+
+```{r}
+t.test(len ~ supp, data=ToothGrowth)
+```
+     
+###Conclusion 
+The test returns a p-value of 0.06 and the confidence interval contains zero. The p-value is greater than the significance level of 0.05 and the confidence interval contains zero so that we can say that there is not enough evidence to reject the null hypothesis. Therefore, application methods have *no impact* on tooth growth
+
+###By Dose Level
+
+Higher doses of vitamin C cause less tooth growth.
+H0: Mean of level 2 is equal than level 0.5.
+HA: Mean of level 2 is greater than level 0.5.
+
+
+```{r}
+dose1 <- subset(ToothGrowth, dose %in% c(0.5, 1.0))
+dose2 <- subset(ToothGrowth, dose %in% c(0.5, 2.0))
+dose3 <- subset(ToothGrowth, dose %in% c(1.0, 2.0))
+t.test(len ~ dose, paired = F, var.equal = F, data = dose1)
+```
+
+
+```{r}
+t.test(len ~ dose, paired = F, var.equal = F, data = dose2)
+```
+
+
+```{r}
+t.test(len ~ dose, paired = F, var.equal = F, data = dose3)
+```
+
+###Conclusions
+
+Supplement type has no effect on tooth growth.   
+
+Inreasing the dose level leads to increased tooth growth.
